@@ -1,0 +1,48 @@
+﻿@using TableApp.Data
+@using TableApp.Models
+
+@page "/records";
+<h3>Records</h3>
+@inject RecordService _service;
+
+<table class="table table-bordered">
+    <thead class="table-light">
+    <tr>
+        <th scope="col">Price hub</th>
+        <th scope="col">Trade date</th>
+        <th scope="col">Delivery start date</th>
+        <th scope="col">Delivery end date</th>
+        <th scope="col">High price $/MWh</th>
+        <th scope="col">Low price $/MWh</th>
+        <th scope="col">Wth avg price $/MWh</th>
+        <th scope="col">Change</th>
+        <th scope="col">Daily volume MWh</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (Record e in _records)
+    {
+        <tr scope="row">
+            <td>@e.PriceHub</td>
+            <td>@e.TradeDate</td>
+            <td>@e.DeliveryStartDate</td>
+            <td>@e.DeliveryEndDate</td>
+            <td>@e.HighPrice</td>
+            <td>@e.LowPrice</td>
+            <td>@e.WtdAvgPrice</td>
+            <td>@e.Change</td>
+            <td>@e.DailyVolume</td>
+        </tr>
+    }
+    </tbody>
+</table>
+@code {
+    private List<Record> _records;
+    protected override void OnInitialized()
+    {
+        _service.GetAllRecords();
+        _service.PaginateQuery(1,10);
+        _records = _service.GetRecords();
+    }
+
+}
