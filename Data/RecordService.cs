@@ -41,6 +41,7 @@ namespace TableApp.Data
                             });
                         }
                     }
+                    _query = string.Empty;
                     connection.Close();
                 }
             }
@@ -48,9 +49,9 @@ namespace TableApp.Data
             return Task.FromResult(records);
         }
 
-        public void GetAllRecords()
+        public void GetAllRecords(string orderBy, string sort)
         {
-            _query = "SELECT * FROM ice_electric2021final ORDER BY Id ";
+            _query = $"SELECT * FROM ice_electric2021final ORDER BY {orderBy} {sort} ";
         }
 
         public void PaginateQuery(int pageNumber, int itemsOnPage)
