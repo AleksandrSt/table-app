@@ -1,0 +1,117 @@
+﻿@using TableApp.Data
+@using TableApp.Models
+
+@inject RecordService _service;
+
+<div class="table-container">
+    <table class="table">
+        <thead class="table-light">
+        <tr>
+            @foreach (TableColumn c in ColumnsSet!)
+            {
+                <th scope="col" class="sort-th" @onclick="@(() => SortTable(c.ColumnId))">
+                    <div class="header-container">
+                        <div class="header-title">@c.ColumnName</div>
+                        <div class="header-icon">
+                            <i class="bi @SetSortIcon(c.ColumnId)"></i>
+                        </div>
+                    </div>
+                </th>
+            }
+        
+        </tr>
+        </thead>
+        <tbody>
+        @if (_records == null)
+        {
+            <tr class="spinner"></tr>
+        }
+        else
+        {
+            @foreach (Record e in _records)
+            {
+                <tr scope="row">
+                    <td>@e.PriceHub</td>
+                    <td>@e.HighPrice</td>
+                    <td>@e.LowPrice</td>
+                    <td>@e.WtdAvgPrice</td>
+                    <td>@e.Change</td>
+                    <td>@e.DailyVolume</td>
+                    <td>
+                        <div class="dates-icon" @onclick="@(() => SetExpandedId(e.Id))">
+                            <i class="bi @SetExpandIcon(e.Id)"></i>
+                        </div>
+                        <div class="dates @_expandedClass @ExpandDates(e.Id)">
+                            <b>Trade:</b> @e.TradeDate.ToString("dd.MM.yyyy")
+                            <br/>
+                            <b>Delivery start:</b> @e.DeliveryStartDate.ToString("dd.MM.yyyy")
+                            <br/>
+                            <b>Delivery end:</b> @e.DeliveryEndDate.ToString("dd.MM.yyyy")
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    private List<Record>? _records;
+    private bool _isSortedAscending;
+    private string? _activeSortColumn;
+    private int? _expandedRecordId;
+    private string? _expandedClass = String.Empty;
+
+    [Parameter] 
+    public TableColumn[]? ColumnsSet { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _service.GetAllRecords();
+        _service.PaginateQuery(1, 15);
+        _records = await _service.GetRecords();
+    }
+
+    private void SortTable(string columnId)
+    {
+        _expandedRecordId = 0;
+        _expandedClass = columnId == "TradeDate" ? "expanded" : String.Empty;
+
+        if (columnId != _activeSortColumn)
+        {
+            _records = _records!.OrderBy(x => x.GetType().GetProperty(columnId)!.GetValue(x, null)).ToList();
+            _isSortedAscending = true;
+            _activeSortColumn = columnId;
+        }
+        else
+        {
+            _records = _isSortedAscending 
+                ? _records!.OrderByDescending(x => x.GetType().GetProperty(columnId)!.GetValue(x, null)).ToList() 
+                : _records!.OrderBy(x => x.GetType().GetProperty(columnId)!.GetValue(x, null)).ToList();
+
+            _isSortedAscending = !_isSortedAscending;
+        }
+    }
+
+    private string SetSortIcon(string columnId)
+    {
+        return _activeSortColumn != columnId ? "bi-caret-up" : _isSortedAscending ? "bi-caret-up-fill" : "bi-caret-up-fill rotated";
+    }
+
+    private void SetExpandedId(int recordId)
+    {
+        _expandedClass = String.Empty;  
+        _expandedRecordId = _expandedRecordId != recordId ? recordId : 0;
+    }
+
+    private string ExpandDates(int recordId)
+    {
+        return _expandedRecordId != recordId ?  string.Empty : "expanded";
+    }
+
+    private string SetExpandIcon(int recordId)
+    {
+        return _expandedRecordId != recordId ? "bi-calendar-plus" : "bi-calendar-minus";
+    }
+}

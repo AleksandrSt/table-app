@@ -6,13 +6,13 @@ namespace TableApp.Data
     public class RecordService
     {
         private readonly IConfiguration _configuration;
-        private string _query;
+        private string? _query;
         public RecordService(IConfiguration configuration)
         {
             _configuration = configuration;
         }
 
-        public List<Record> GetRecords()
+        public Task<List<Record>> GetRecords()
         {
             string conStr = _configuration.GetConnectionString("DefaultConnection");
             List<Record> records = new List<Record>();
@@ -45,7 +45,7 @@ namespace TableApp.Data
                 }
             }
 
-            return records;
+            return Task.FromResult(records);
         }
 
         public void GetAllRecords()

@@ -1,7 +1,10 @@
-﻿namespace TableApp.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TableApp.Models
 {
     public class Record
     {
+        [Key]
         public int Id { get; set; }
         public string PriceHub { get; set; }
         public DateTime TradeDate { get; set; }
