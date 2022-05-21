@@ -6,71 +6,111 @@
 <div class="table-container">
     <table class="table">
         <thead class="table-light">
-            <tr>
-                @foreach (TableColumn c in ColumnsSet!)
-                {
-                    <th scope="col" class="sort-th" @onclick="@(() => SortTableAsync(c.ColumnId))">
-                        <div class="header-container">
-                            <div class="header-title">@c.ColumnName</div>
-                            <div class="header-icon">
-                                <i class="bi @SetSortIcon(c.ColumnId)"></i>
-                            </div>
+        <tr>
+            @foreach (TableColumn c in ColumnsSet!)
+            {
+                <th scope="col" class="sort-th" @onclick="@(() => SortTableAsync(c.ColumnId))">
+                    <div class="header-container">
+                        <div class="header-title">@c.ColumnName</div>
+                        <div class="header-icon">
+                            <i class="bi @SetSortIcon(c.ColumnId)"></i>
                         </div>
-                    </th>
-                }
+                    </div>
+                </th>
+            }
 
-            </tr>
+        </tr>
         </thead>
         <tbody>
-            @if (_records == null)
+        @if (_records == null)
+        {
+            <tr class="spinner"></tr>
+        }
+        else
+        {
+            @foreach (Record e in _records)
             {
-                <tr class="spinner"></tr>
+                <tr scope="row">
+                    <td>@e.PriceHub</td>
+                    <td>@e.HighPrice</td>
+                    <td>@e.LowPrice</td>
+                    <td>@e.WtdAvgPrice</td>
+                    <td>@e.Change</td>
+                    <td>@e.DailyVolume</td>
+                    <td>
+                        <div class="dates-icon" @onclick="@(() => SetExpandedId(e.Id))">
+                            <i class="bi @SetExpandIcon(e.Id)"></i>
+                        </div>
+                        <div class="dates @_expandedClass @ExpandDates(e.Id)">
+                            <b>Trade:</b> @e.TradeDate.ToString("dd.MM.yyyy")
+                            <br />
+                            <b>Delivery start:</b> @e.DeliveryStartDate.ToString("dd.MM.yyyy")
+                            <br />
+                            <b>Delivery end:</b> @e.DeliveryEndDate.ToString("dd.MM.yyyy")
+                        </div>
+                    </td>
+                </tr>
             }
-            else
-            {
-                @foreach (Record e in _records)
-                {
-                    <tr scope="row">
-                        <td>@e.PriceHub</td>
-                        <td>@e.HighPrice</td>
-                        <td>@e.LowPrice</td>
-                        <td>@e.WtdAvgPrice</td>
-                        <td>@e.Change</td>
-                        <td>@e.DailyVolume</td>
-                        <td>
-                            <div class="dates-icon" @onclick="@(() => SetExpandedId(e.Id))">
-                                <i class="bi @SetExpandIcon(e.Id)"></i>
-                            </div>
-                            <div class="dates @_expandedClass @ExpandDates(e.Id)">
-                                <b>Trade:</b> @e.TradeDate.ToString("dd.MM.yyyy")
-                                <br />
-                                <b>Delivery start:</b> @e.DeliveryStartDate.ToString("dd.MM.yyyy")
-                                <br />
-                                <b>Delivery end:</b> @e.DeliveryEndDate.ToString("dd.MM.yyyy")
-                            </div>
-                        </td>
-                    </tr>
-                }
-            }
+        }
         </tbody>
     </table>
+</div>
+<div class="pagination">
+    <button class="btn btn-custom" @onclick=@(async ()=>await NavigateToPage("previous"))>Prev</button>
+    @for (int i = startPage; i <= endPage; i++)
+    {
+        var currentPage = i;
+        <button class="btn btn-custom pagebutton @(currentPage==curPage?"btn-danger":"")" @onclick=@(async () =>await RefreshRecords(currentPage))>
+            @currentPage
+        </button>
+    }
+    <button class="btn btn-custom" @onclick=@(async ()=>await NavigateToPage("next"))>Next</button>
 </div>
 
 @code {
     private List<Record>? _records;
     private bool _isSortedAscending;
-    private string? _activeSortColumn;
+    private string? _activeSortColumn = "Id";
     private int? _expandedRecordId;
     private string? _expandedClass = string.Empty;
+
+    #region MyRegion
+
+    int totalPages;
+    int totalRecords;
+    int curPage;
+    int pagerSize;
+    int pageSize;
+    int startPage;
+    int endPage;
+    //string sortColumnName = "Id";
+    string sortDir = "ASC";
+
+    #endregion
+
 
     [Parameter]
     public TableColumn[]? ColumnsSet { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        _service.GetAllRecords("Id", "ASC");
-        _service.PaginateQuery(1, 15);
+        pagerSize = 3;
+        pageSize = 10;
+        curPage = 1;
+
+        totalRecords = await _service.Count();
+        totalPages = (int)Math.Ceiling(totalRecords / (decimal)pageSize);
+        SetPagerSize("forward");
+
+        await FetchRecords();
+    }
+
+    private async Task FetchRecords()
+    {
+        _service.GetAllRecords(_activeSortColumn, sortDir);
+        _service.PaginateQuery(curPage, pageSize);
         _records = await _service.GetRecords();
+        this.StateHasChanged();
     }
 
     private async void SortTableAsync(string columnId)
@@ -78,44 +118,84 @@
         _expandedRecordId = 0;
         _expandedClass = columnId == "TradeDate" ? "expanded" : String.Empty;
 
-        string sort = string.Empty;
-
         if (columnId != _activeSortColumn)
         {
-            sort = "ASC";
-            //_records = _records!.OrderBy(x => x.GetType().GetProperty(columnId)!.GetValue(x, null)).ToList();
             _isSortedAscending = true;
-            _activeSortColumn = columnId;
         }
         else
         {
-            if (_isSortedAscending)
-            {
-                sort = "DESC";
-            }
-            else
+            if (!_isSortedAscending)
             {
                 columnId = "Id";
-                sort = "ASC";
-                _activeSortColumn = "Id";
+                _expandedClass = String.Empty;
             }
-            //sort = _isSortedAscending
-            //    ? "DESC"
-            //    : "ASC";
-            //_records = _isSortedAscending
-            //    ? _records!.OrderByDescending(x => x.GetType().GetProperty(columnId)!.GetValue(x, null)).ToList()
-            //    : _records!.OrderBy(x => x.GetType().GetProperty(columnId)!.GetValue(x, null)).ToList();
-
             _isSortedAscending = !_isSortedAscending;
         }
-        _service.GetAllRecords(columnId, sort);
-        _service.PaginateQuery(1, 15);
-        _records = await _service.GetRecords();
+        _activeSortColumn = columnId;
+        sortDir = _isSortedAscending ? "ASC" : "DESC";
+
+        await FetchRecords();
     }
 
     private string SetSortIcon(string columnId)
     {
         return _activeSortColumn != columnId ? "bi-caret-up" : _isSortedAscending ? "bi-caret-up-fill" : "bi-caret-up-fill rotated";
+    }
+
+    public async Task RefreshRecords(int page)
+    {
+        _expandedRecordId = 0;
+        curPage = page;
+        await FetchRecords();
+    }
+
+    public void SetPagerSize(string direction)
+    {
+        if (direction == "forward" && endPage < totalPages)
+        {
+            startPage = endPage + 1;
+            if (endPage + pagerSize < totalPages)
+            {
+                endPage = startPage + pagerSize - 1;
+            }
+            else
+            {
+                endPage = totalPages;
+            }
+            this.StateHasChanged();
+        }
+        else if (direction == "back" && startPage > 1)
+        {
+            endPage = startPage - 1;
+            startPage =- pagerSize;
+        }
+    }
+
+    public async Task NavigateToPage(string direction)
+    {
+        if (direction == "next")
+        {
+            if (curPage < totalPages)
+            {
+                if (curPage == endPage)
+                {
+                    SetPagerSize("forward");
+                }
+                curPage += 1;
+            }
+        }
+        else if (direction == "previous")
+        {
+            if (curPage > 1)
+            {
+                if (curPage == startPage)
+                {
+                    SetPagerSize("back");
+                }
+                curPage -= 1;
+            }
+        }
+        await FetchRecords();
     }
 
     private void SetExpandedId(int recordId)

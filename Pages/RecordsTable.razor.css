@@ -60,3 +60,13 @@
             margin: auto;
             width: max-content;
         }
+
+.btn-custom {
+    color: black;
+    float: left;
+    padding: 8px 16px;
+    text-decoration: none;
+    transition: background-color .3s;
+    border: 2px solid #000;
+    margin: 0px 5px 0px 5px;
+}

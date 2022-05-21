@@ -58,5 +58,23 @@ namespace TableApp.Data
         {
             _query += $"OFFSET {(pageNumber-1) * itemsOnPage} ROWS FETCH NEXT {itemsOnPage} ROWS ONLY";
         }
+
+        public Task<int> Count()
+        {
+            string conStr = _configuration.GetConnectionString("DefaultConnection");
+            int count = 0;
+            using (SqlConnection connection = new SqlConnection(conStr))
+            {
+                using (SqlCommand command = new SqlCommand("SELECT COUNT(*) FROM ice_electric2021final"))
+                {
+                    command.Connection = connection;
+                    connection.Open();
+                    count = Convert.ToInt32(command.ExecuteScalar());
+                    connection.Close();
+                }
+            }
+
+            return Task.FromResult(count);
+        }
     }
 }
