@@ -2,7 +2,7 @@
 {
     public class TableColumn
     {
-        public string ColumnId { get; set; }
-        public string ColumnName { get; set; }
+        public string? ColumnId { get; set; }
+        public string? ColumnName { get; set; }
     }
 }

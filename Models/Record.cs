@@ -6,7 +6,7 @@ namespace TableApp.Models
     {
         [Key]
         public int Id { get; set; }
-        public string PriceHub { get; set; }
+        public string? PriceHub { get; set; }
         public DateTime TradeDate { get; set; }
         public DateTime DeliveryStartDate { get; set; }
         public DateTime DeliveryEndDate { get; set; }

@@ -6,8 +6,8 @@ namespace TableApp.Pages
 {
     public partial class RecordsTable: ComponentBase
     {
-        [Inject] 
-        private RecordService _service { get; set; }
+        [Inject]
+        private RecordService _service { get; set; } = null!;
 
 
         private List<Record>? _records;
@@ -49,7 +49,7 @@ namespace TableApp.Pages
 
         private async Task FetchRecords()
         {
-            _service.GetAllRecords(_activeSortColumn, sortDir);
+            _service.GetAllRecords(_activeSortColumn!, sortDir);
             _service.PaginateQuery(curPage, pageSize);
             _records = await _service.GetRecords();
             this.StateHasChanged();
