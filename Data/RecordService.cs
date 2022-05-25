@@ -51,7 +51,20 @@ namespace TableApp.Data
 
         public void GetAllRecords(string orderBy, string sort)
         {
-            _query = $"SELECT * FROM ice_electric2021final ORDER BY {orderBy} {sort} ";
+            _query = "SELECT " +
+                     "ice_electric2021final.Id, " +
+                     "price_hubs.Name AS PriceHub, " +
+                     "TradeDate, " +
+                     "DeliveryStartDate, " +
+                     "DeliveryEndDate, " +
+                     "HighPrice, " +
+                     "LowPrice, " +
+                     "WtdAvgPrice, " +
+                     "Change, " +
+                     "DailyVolume " +
+                     "from ice_electric2021final " +
+                     "INNER JOIN price_hubs ON ice_electric2021final.PriceHubId = price_hubs.Id " +
+                     $"ORDER BY {orderBy} {sort} ";
         }
 
         public void PaginateQuery(int pageNumber, int itemsOnPage)
