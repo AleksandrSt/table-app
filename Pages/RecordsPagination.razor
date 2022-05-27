@@ -1,0 +1,50 @@
+﻿@using TableApp.Models
+@using TableApp.Data
+@using Microsoft.AspNetCore.Mvc.RazorPages
+
+<div class="pagination-container">
+    <div class="pagination">
+        <a class="@(_startPage == 1 ? "disabled" : "")" @onclick=@(async () => NavigateToFirstPage())>&laquo;</a>
+        @if (_startPage != 1)
+        {
+            <a @onclick=@(() => SetPager("backward"))>...</a>
+        }
+        @for (int i = _startPage; i <= _endPage; i++)
+        {
+            var currentPage = i;
+            <a class="@(currentPage == CurrentPage ? "active" : "")" @onclick=@(async () => SetPage(currentPage))>
+                @currentPage
+            </a>
+        }
+        @if (_endPage != _totalPages)
+        {
+            <a @onclick=@(() => SetPager("forward"))>...</a>
+        }
+        <a class="@(_endPage == _totalPages ? "disabled" : "")" @onclick=@(async () => NavigateToLastPage())>&raquo;</a>
+    </div>
+    
+    <div class="selection-container">
+        <span class="selection-title">Page size</span>
+        <select class="form-select" value="@PageSize" @onchange="@SetPageSize">
+            <option value="10" selected="">10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+        </select>
+    </div>
+</div>
+
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        _pagerSize = 5;
+
+        _totalRecords = await Service.Count();
+        _totalPages = (int)Math.Ceiling(_totalRecords / (decimal)PageSize);
+
+        _startPage = (CurrentPage - _pagerSize / 2) < 1 ? 1 : (CurrentPage - _pagerSize / 2);
+        _endPage = SetEndPage();
+    }
+
+}

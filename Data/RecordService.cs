@@ -12,41 +12,44 @@ namespace TableApp.Data
             _configuration = configuration;
         }
 
-        public Task<List<Record>> GetRecords()
+        public async Task<List<Record>> GetRecords()
         {
             string conStr = _configuration.GetConnectionString("DefaultConnection");
             List<Record> records = new List<Record>();
-            using (SqlConnection connection = new SqlConnection(conStr))
+
+            await using SqlConnection connection = new SqlConnection(conStr);
+
+            await using SqlCommand command = new SqlCommand(_query);
+
+            command.Connection = connection;
+
+            connection.Open();
+
+            await using (SqlDataReader reader = command.ExecuteReader())
             {
-                using (SqlCommand command = new SqlCommand(_query))
+                while (await reader.ReadAsync())
                 {
-                    command.Connection = connection;
-                    connection.Open();
-                    using (SqlDataReader reader = command.ExecuteReader())
+                    records.Add(new Record
                     {
-                        while (reader.Read())
-                        {
-                            records.Add(new Record
-                            {
-                                Id = Convert.ToInt32(reader["Id"]),
-                                PriceHub = reader["PriceHub"].ToString()!,
-                                TradeDate = Convert.ToDateTime(reader["TradeDate"]),
-                                DeliveryStartDate = Convert.ToDateTime(reader["DeliveryStartDate"]),
-                                DeliveryEndDate = Convert.ToDateTime(reader["DeliveryEndDate"]),
-                                HighPrice = Convert.ToDouble(reader["HighPrice"]),
-                                LowPrice = Convert.ToDouble(reader["LowPrice"]),
-                                WtdAvgPrice = Convert.ToDouble(reader["WtdAvgPrice"]),
-                                Change = Convert.ToDouble(reader["Change"]),
-                                DailyVolume = Convert.ToInt32(reader["DailyVolume"])
-                            });
-                        }
-                    }
-                    _query = string.Empty;
-                    connection.Close();
+                        Id = Convert.ToInt32(reader["Id"]),
+                        PriceHub = reader["PriceHub"].ToString()!,
+                        TradeDate = Convert.ToDateTime(reader["TradeDate"]),
+                        DeliveryStartDate = Convert.ToDateTime(reader["DeliveryStartDate"]),
+                        DeliveryEndDate = Convert.ToDateTime(reader["DeliveryEndDate"]),
+                        HighPrice = Convert.ToDouble(reader["HighPrice"]),
+                        LowPrice = Convert.ToDouble(reader["LowPrice"]),
+                        WtdAvgPrice = Convert.ToDouble(reader["WtdAvgPrice"]),
+                        Change = Convert.ToDouble(reader["Change"]),
+                        DailyVolume = Convert.ToInt32(reader["DailyVolume"])
+                    });
                 }
             }
 
-            return Task.FromResult(records);
+            _query = string.Empty;
+
+            connection.Close();
+
+            return records;
         }
 
         public void GetAllRecords(string orderBy, string sort)
@@ -75,7 +78,7 @@ namespace TableApp.Data
         public Task<int> Count()
         {
             string conStr = _configuration.GetConnectionString("DefaultConnection");
-            int count = 0;
+            int count;
             using (SqlConnection connection = new SqlConnection(conStr))
             {
                 using (SqlCommand command = new SqlCommand("SELECT COUNT(*) FROM ice_electric2021final"))

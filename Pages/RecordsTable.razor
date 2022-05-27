@@ -7,11 +7,11 @@
         <tr>
             @foreach (TableColumn c in ColumnsSet!)
             {
-                <th scope="col" class="sort-th" @onclick="@(() => SortTableAsync(c.ColumnId))">
+                <th scope="col" class="sort-th" @onclick="@(() => SortTableAsync(c.ColumnId!))">
                     <div class="header-container">
                         <div class="header-title">@c.ColumnName</div>
                         <div class="header-icon">
-                            <i class="bi @SetSortIcon(c.ColumnId)"></i>
+                            <i class="bi @SetSortIcon(c.ColumnId!)"></i>
                         </div>
                     </div>
                 </th>
@@ -41,9 +41,9 @@
                         </div>
                         <div class="dates @_expandedClass @ExpandDates(e.Id)">
                             <b>Trade:</b> @e.TradeDate.ToString("dd.MM.yyyy")
-                            <br />
+                            <br/>
                             <b>Delivery start:</b> @e.DeliveryStartDate.ToString("dd.MM.yyyy")
-                            <br />
+                            <br/>
                             <b>Delivery end:</b> @e.DeliveryEndDate.ToString("dd.MM.yyyy")
                         </div>
                     </td>
@@ -53,14 +53,19 @@
         </tbody>
     </table>
 </div>
-<div class="pagination">
-    <button class="btn btn-custom" @onclick=@(async ()=>await NavigateToPage("previous"))>Prev</button>
-    @for (int i = startPage; i <= endPage; i++)
+
+
+
+@code{
+
+    protected override async Task OnInitializedAsync()
     {
-        var currentPage = i;
-        <button class="btn btn-custom pagebutton @(currentPage==curPage?"btn-danger":"")" @onclick=@(async () =>await RefreshRecords(currentPage))>
-            @currentPage
-        </button>
+        await FetchRecords();
     }
-    <button class="btn btn-custom" @onclick=@(async ()=>await NavigateToPage("next"))>Next</button>
-</div>
+    
+    private string SetSortIcon(string columnId)
+    {
+        return _activeSortColumn != columnId ? "bi-caret-up" : _isSortedAscending ? "bi-caret-up-fill" : "bi-caret-up-fill rotated";
+    }
+
+}

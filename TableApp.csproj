@@ -6,13 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Pages\RecordsTable.razor.css" />
-  </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="Pages\RecordsTable.razor.css" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="bootstrap" Version="5.1.3" />
