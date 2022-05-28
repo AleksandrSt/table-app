@@ -6,19 +6,32 @@ namespace TableApp.Pages
 {
     public partial class RecordsTable: ComponentBase
     {
+        [Parameter]
+        public EventCallback<string> OnSortColumnId { get; set; }
+
+        [Parameter]
+        public EventCallback<string> OnSortDirection { get; set; }
+
+        [Parameter]
+        public EventCallback OnSortCallback { get; set; }
+
+        [Parameter]
+        public List<Record>? Records { get; set; }
+
+
         [Inject]
         private RecordService Service { get; set; } = null!;
 
-        private List<Record>? _records;
+        //private List<Record>? _records;
 
-        #region Pagination
-        [Parameter]
-        [SupplyParameterFromQuery(Name = "page")]
-        public int CurrentPage { get; set; }
-        [Parameter]
-        [SupplyParameterFromQuery(Name = "pageSize")]
-        public int PageSize { get; set; }
-        #endregion
+        //#region Pagination
+        //[Parameter]
+        //[SupplyParameterFromQuery(Name = "page")]
+        //public int CurrentPage { get; set; }
+        //[Parameter]
+        //[SupplyParameterFromQuery(Name = "pageSize")]
+        //public int PageSize { get; set; }
+        //#endregion
 
         #region Sorting
         private bool _isSortedAscending;
@@ -35,20 +48,23 @@ namespace TableApp.Pages
         [Parameter]
         public TableColumn[]? ColumnsSet { get; set; }
 
-        protected override async Task OnParametersSetAsync()
-        {
-            await FetchRecords();
-        }
-
-        private async Task FetchRecords()
+        protected override void OnParametersSet()
         {
             _expandedRecordId = 0;
-            
-            Service.GetAllRecords(_activeSortColumn!, _sortDir);
-            Service.PaginateQuery(CurrentPage, PageSize);
-            _records = await Service.GetRecords();
+
             this.StateHasChanged();
+            //await FetchRecords();
         }
+
+        //private async Task FetchRecords()
+        //{
+        //    _expandedRecordId = 0;
+            
+        //    Service.GetAllRecords(_activeSortColumn!, _sortDir);
+        //    Service.PaginateQuery(CurrentPage, PageSize);
+        //    _records = await Service.GetRecords();
+        //    this.StateHasChanged();
+        //}
 
         private async void SortTableAsync(string columnId)
         {
@@ -70,7 +86,9 @@ namespace TableApp.Pages
             _activeSortColumn = columnId;
             _sortDir = _isSortedAscending ? "ASC" : "DESC";
 
-            await FetchRecords();
+            await OnSortColumnId.InvokeAsync(_activeSortColumn);
+            await OnSortDirection.InvokeAsync(_sortDir);
+            await OnSortCallback.InvokeAsync();
         }
 
         private void SetExpandedId(int recordId)

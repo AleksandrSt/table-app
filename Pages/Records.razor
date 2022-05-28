@@ -4,18 +4,12 @@
 @page "/records";
 <h3>Records</h3>
 
-<RecordsTable ColumnsSet="_columns" CurrentPage="CurrentPage" PageSize="PageSize"></RecordsTable>
+@*CurrentPage="CurrentPage" PageSize="PageSize"*@
+
+<RecordsTable ColumnsSet="_columns" Records="_records" OnSortColumnId="@SetSortedColumn" OnSortDirection="@SetSortDirection" OnSortCallback="FetchRecords"></RecordsTable>
 <RecordsPagination CurrentPage="CurrentPage" PageSize="PageSize"></RecordsPagination>
 
 @code {
-    [Parameter]
-    [SupplyParameterFromQuery(Name = "page")]
-    public int CurrentPage { get; set; }
-
-    [Parameter]
-    [SupplyParameterFromQuery(Name = "pageSize")]
-    public int PageSize { get; set; }
-
     readonly TableColumn[]? _columns = {
         new()
         {
@@ -54,9 +48,10 @@
         }
     };
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         PageSize = PageSize > 0 ? PageSize : 10;
         CurrentPage = CurrentPage > 0 ? CurrentPage : 1;
-      }
+        await FetchRecords();
+    }
 }

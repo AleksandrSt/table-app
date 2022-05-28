@@ -20,13 +20,13 @@
         </tr>
         </thead>
         <tbody>
-        @if (_records == null)
+        @if (Records == null)
         {
             <tr class="spinner"></tr>
         }
         else
         {
-            @foreach (Record e in _records)
+            @foreach (Record e in Records)
             {
                 <tr scope="row">
                     <td>@e.PriceHub</td>
@@ -60,7 +60,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await FetchRecords();
+        //await FetchRecords();
     }
     
     private string SetSortIcon(string columnId)
