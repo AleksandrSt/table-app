@@ -16,11 +16,11 @@
                 @currentPage
             </a>
         }
-        @if (_endPage != _totalPages)
+        @if (_endPage != TotalPages)
         {
             <a @onclick=@(() => SetPager("forward"))>...</a>
         }
-        <a class="@(_endPage == _totalPages ? "disabled" : "")" @onclick=@(async () => NavigateToLastPage())>&raquo;</a>
+        <a class="@(_endPage == TotalPages ? "disabled" : "")" @onclick=@(async () => NavigateToLastPage())>&raquo;</a>
     </div>
     
     <div class="selection-container">
@@ -32,19 +32,3 @@
         </select>
     </div>
 </div>
-
-
-@code {
-
-    protected override async Task OnInitializedAsync()
-    {
-        _pagerSize = 5;
-
-        _totalRecords = await Service.Count();
-        _totalPages = (int)Math.Ceiling(_totalRecords / (decimal)PageSize);
-
-        _startPage = (CurrentPage - _pagerSize / 2) < 1 ? 1 : (CurrentPage - _pagerSize / 2);
-        _endPage = SetEndPage();
-    }
-
-}

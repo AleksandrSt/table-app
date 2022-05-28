@@ -7,10 +7,12 @@ namespace TableApp.Pages
 {
     public partial class RecordsPagination : ComponentBase
     {
-        [Inject] private RecordService Service { get; set; } = null!;
 
-        [Inject] private NavigationManager NavigationManager { get; set; } = null!;
+        [Inject] 
+        private NavigationManager NavigationManager { get; set; } = null!;
 
+        [Parameter]
+        public int TotalPages { get; set; }
 
         [Parameter]
         public int CurrentPage { get; set; }
@@ -18,19 +20,31 @@ namespace TableApp.Pages
         [Parameter]
         public int PageSize { get; set; }
 
+        #region Variables
 
-        #region Pagination variables
-        private int _totalPages;
-        private int _totalRecords;
         private int _pagerSize;
         private int _startPage;
         private int _endPage;
+
         #endregion
 
 
+        protected override void OnInitialized()
+        {
+            _pagerSize = 5;
+
+            _startPage = (CurrentPage - _pagerSize / 2) < 1 ? 1 : (CurrentPage - _pagerSize / 2);
+            _endPage = SetEndPage();
+        }
+
+        protected override void OnParametersSet()
+        {
+            this.StateHasChanged();
+        }
+
         public void SetPager(string direction)
         {
-            if (direction == "forward" && _endPage < _totalPages)
+            if (direction == "forward" && _endPage < TotalPages)
             {
                 _startPage = _endPage++;
                 _endPage = SetEndPage();
@@ -44,8 +58,8 @@ namespace TableApp.Pages
 
         public void NavigateToLastPage()
         {
-            CurrentPage = _totalPages;
-            _endPage = _totalPages;
+            CurrentPage = TotalPages;
+            _endPage = TotalPages;
             _startPage = SetStartPage();
             UpdatePagesQuery();
         }
@@ -61,7 +75,7 @@ namespace TableApp.Pages
         {
             CurrentPage = page;
 
-            if (_endPage - CurrentPage <= 1 && _endPage != _totalPages)
+            if (_endPage - CurrentPage <= 1 && _endPage != TotalPages)
             {
                 _startPage++;
                 _endPage = SetEndPage();
@@ -69,14 +83,14 @@ namespace TableApp.Pages
 
             if (CurrentPage - _startPage <= 1 && _startPage != 1)
             {
-                if (CurrentPage != _totalPages && _endPage - CurrentPage > 1) _endPage--;
+                if (CurrentPage != TotalPages && _endPage - CurrentPage > 1) _endPage--;
                 _startPage = SetStartPage();
             }
 
             UpdatePagesQuery();
         }
 
-        private int SetEndPage() => _startPage + _pagerSize - 1 < _totalPages ? _startPage + _pagerSize - 1 : _totalPages;
+        private int SetEndPage() => _startPage + _pagerSize - 1 < TotalPages ? _startPage + _pagerSize - 1 : TotalPages;
 
         private int SetStartPage() => _endPage - _pagerSize + 1 > 1 ? _endPage - _pagerSize + 1 : 1;
 

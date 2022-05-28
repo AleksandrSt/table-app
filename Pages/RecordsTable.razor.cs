@@ -7,6 +7,14 @@ namespace TableApp.Pages
     public partial class RecordsTable: ComponentBase
     {
         [Parameter]
+        public List<Record>? Records { get; set; }
+
+        [Parameter]
+        public TableColumn[]? ColumnsSet { get; set; }
+
+        #region Callbacks
+
+        [Parameter]
         public EventCallback<string> OnSortColumnId { get; set; }
 
         [Parameter]
@@ -15,56 +23,29 @@ namespace TableApp.Pages
         [Parameter]
         public EventCallback OnSortCallback { get; set; }
 
-        [Parameter]
-        public List<Record>? Records { get; set; }
-
-
-        [Inject]
-        private RecordService Service { get; set; } = null!;
-
-        //private List<Record>? _records;
-
-        //#region Pagination
-        //[Parameter]
-        //[SupplyParameterFromQuery(Name = "page")]
-        //public int CurrentPage { get; set; }
-        //[Parameter]
-        //[SupplyParameterFromQuery(Name = "pageSize")]
-        //public int PageSize { get; set; }
-        //#endregion
+        #endregion
 
         #region Sorting
+
         private bool _isSortedAscending;
         private string? _activeSortColumn = "Id";
         private string _sortDir = "ASC";
+
         #endregion
 
         #region DateExpanding
+
         private int? _expandedRecordId;
         private string? _expandedClass = string.Empty;
+
         #endregion
-
-
-        [Parameter]
-        public TableColumn[]? ColumnsSet { get; set; }
 
         protected override void OnParametersSet()
         {
             _expandedRecordId = 0;
 
             this.StateHasChanged();
-            //await FetchRecords();
         }
-
-        //private async Task FetchRecords()
-        //{
-        //    _expandedRecordId = 0;
-            
-        //    Service.GetAllRecords(_activeSortColumn!, _sortDir);
-        //    Service.PaginateQuery(CurrentPage, PageSize);
-        //    _records = await Service.GetRecords();
-        //    this.StateHasChanged();
-        //}
 
         private async void SortTableAsync(string columnId)
         {
@@ -105,6 +86,11 @@ namespace TableApp.Pages
         private string SetExpandIcon(int recordId)
         {
             return _expandedRecordId != recordId ? "bi-calendar-plus" : "bi-calendar-minus";
+        }
+
+        private string SetSortIcon(string columnId)
+        {
+            return _activeSortColumn != columnId ? "bi-caret-up" : _isSortedAscending ? "bi-caret-up-fill" : "bi-caret-up-fill rotated";
         }
     }
 }
