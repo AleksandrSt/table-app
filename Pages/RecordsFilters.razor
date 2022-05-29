@@ -1,0 +1,19 @@
+﻿@using TableApp.Models
+
+
+    <div class="filters-container">
+        <div class="selection-container">
+            <span class="selection-title">Price Hub</span>
+            <select class="form-select" value="@_priceHubId" @onchange="ChoosePriceHub">
+                <option value="0">All</option>
+                @if (_priceHubs != null)
+                {
+                    @foreach (var ph in _priceHubs!)
+                    {
+                        <option value="@ph.Id">@ph.Name</option>
+                    }
+                }
+            </select>
+        </div>
+    </div>
+

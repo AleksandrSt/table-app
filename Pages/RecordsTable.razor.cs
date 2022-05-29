@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Components;
-using TableApp.Data;
 using TableApp.Models;
 
 namespace TableApp.Pages
 {
-    public partial class RecordsTable: ComponentBase
+    public partial class RecordsTable : ComponentBase
     {
         [Parameter]
         public List<Record>? Records { get; set; }
@@ -12,24 +11,20 @@ namespace TableApp.Pages
         [Parameter]
         public TableColumn[]? ColumnsSet { get; set; }
 
+        [Parameter]
+        public int CurrentPriceHubId { get; set; }
+
         #region Callbacks
 
         [Parameter]
-        public EventCallback<string> OnSortColumnId { get; set; }
-
-        [Parameter]
-        public EventCallback<string> OnSortDirection { get; set; }
-
-        [Parameter]
-        public EventCallback OnSortCallback { get; set; }
+        public EventCallback<Sorting> OnSortCallback { get; set; }
 
         #endregion
 
         #region Sorting
 
         private bool _isSortedAscending;
-        private string? _activeSortColumn = "Id";
-        private string _sortDir = "ASC";
+        private Sorting _sortingParams = new Sorting();
 
         #endregion
 
@@ -43,15 +38,16 @@ namespace TableApp.Pages
         protected override void OnParametersSet()
         {
             _expandedRecordId = 0;
+            if (CurrentPriceHubId > 0) ColumnsSet = ColumnsSet.Skip(1).ToArray();
 
-            this.StateHasChanged();
+            StateHasChanged();
         }
 
         private async void SortTableAsync(string columnId)
         {
-            _expandedClass = columnId == "TradeDate" ? "expanded" : String.Empty;
+            _expandedClass = columnId == "TradeDate" ? "expanded" : string.Empty;
 
-            if (columnId != _activeSortColumn)
+            if (columnId != _sortingParams.ColumnId)
             {
                 _isSortedAscending = true;
             }
@@ -60,21 +56,19 @@ namespace TableApp.Pages
                 if (!_isSortedAscending)
                 {
                     columnId = "Id";
-                    _expandedClass = String.Empty;
+                    _expandedClass = string.Empty;
                 }
                 _isSortedAscending = !_isSortedAscending;
             }
-            _activeSortColumn = columnId;
-            _sortDir = _isSortedAscending ? "ASC" : "DESC";
+            _sortingParams.ColumnId = columnId;
+            _sortingParams.Direction = _isSortedAscending ? "ASC" : "DESC";
 
-            await OnSortColumnId.InvokeAsync(_activeSortColumn);
-            await OnSortDirection.InvokeAsync(_sortDir);
-            await OnSortCallback.InvokeAsync();
+            await OnSortCallback.InvokeAsync(_sortingParams);
         }
 
         private void SetExpandedId(int recordId)
         {
-            _expandedClass = String.Empty;
+            _expandedClass = string.Empty;
             _expandedRecordId = _expandedRecordId != recordId ? recordId : 0;
         }
 
@@ -90,7 +84,7 @@ namespace TableApp.Pages
 
         private string SetSortIcon(string columnId)
         {
-            return _activeSortColumn != columnId ? "bi-caret-up" : _isSortedAscending ? "bi-caret-up-fill" : "bi-caret-up-fill rotated";
+            return _sortingParams.ColumnId != columnId ? "bi-caret-up" : _isSortedAscending ? "bi-caret-up-fill" : "bi-caret-up-fill rotated";
         }
     }
 }

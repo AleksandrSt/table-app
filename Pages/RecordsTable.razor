@@ -1,55 +1,57 @@
-﻿@using TableApp.Data
-@using TableApp.Models
+﻿@using TableApp.Models
 
 <div class="table-container">
     <table class="table">
         <thead class="table-light">
-        <tr>
-            @foreach (TableColumn c in ColumnsSet!)
-            {
-                <th scope="col" class="sort-th" @onclick="@(() => SortTableAsync(c.ColumnId!))">
-                    <div class="header-container">
-                        <div class="header-title">@c.ColumnName</div>
-                        <div class="header-icon">
-                            <i class="bi @SetSortIcon(c.ColumnId!)"></i>
+            <tr>
+                @foreach (TableColumn c in ColumnsSet!)
+                {
+                    <th scope="col" class="sort-th" @onclick="@(() => SortTableAsync(c.ColumnId!))">
+                        <div class="header-container">
+                            <div class="header-title">@c.ColumnName</div>
+                            <div class="header-icon">
+                                <i class="bi @SetSortIcon(c.ColumnId!)"></i>
+                            </div>
                         </div>
-                    </div>
-                </th>
-            }
+                    </th>
+                }
 
-        </tr>
+            </tr>
         </thead>
         <tbody>
-        @if (Records == null)
-        {
-            <tr class="spinner"></tr>
-        }
-        else
-        {
-            @foreach (Record e in Records)
+            @if (Records == null)
             {
-                <tr scope="row">
-                    <td>@e.PriceHub</td>
-                    <td>@e.HighPrice</td>
-                    <td>@e.LowPrice</td>
-                    <td>@e.WtdAvgPrice</td>
-                    <td>@e.Change</td>
-                    <td>@e.DailyVolume</td>
-                    <td>
-                        <div class="dates-icon" @onclick="@(() => SetExpandedId(e.Id))">
-                            <i class="bi @SetExpandIcon(e.Id)"></i>
-                        </div>
-                        <div class="dates @_expandedClass @ExpandDates(e.Id)">
-                            <b>Trade:</b> @e.TradeDate.ToString("dd.MM.yyyy")
-                            <br/>
-                            <b>Delivery start:</b> @e.DeliveryStartDate.ToString("dd.MM.yyyy")
-                            <br/>
-                            <b>Delivery end:</b> @e.DeliveryEndDate.ToString("dd.MM.yyyy")
-                        </div>
-                    </td>
-                </tr>
+                <tr class="spinner"></tr>
             }
-        }
+            else
+            {
+                @foreach (Record e in Records)
+                {
+                    <tr scope="row">
+                        @if (CurrentPriceHubId == 0)
+                        {
+                            <td>@e.PriceHub</td>
+                        }
+                        <td>@e.HighPrice</td>
+                        <td>@e.LowPrice</td>
+                        <td>@e.WtdAvgPrice</td>
+                        <td>@e.Change</td>
+                        <td>@e.DailyVolume</td>
+                        <td>
+                            <div class="dates-icon" @onclick="@(() => SetExpandedId(e.Id))">
+                                <i class="bi @SetExpandIcon(e.Id)"></i>
+                            </div>
+                            <div class="dates @_expandedClass @ExpandDates(e.Id)">
+                                <b>Trade:</b> @e.TradeDate.ToString("dd.MM.yyyy")
+                                <br />
+                                <b>Delivery start:</b> @e.DeliveryStartDate.ToString("dd.MM.yyyy")
+                                <br />
+                                <b>Delivery end:</b> @e.DeliveryEndDate.ToString("dd.MM.yyyy")
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
         </tbody>
     </table>
 </div>

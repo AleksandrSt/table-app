@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using TableApp.Data;
+using TableApp.Models;
 using static System.Int32;
 
 namespace TableApp.Pages
@@ -8,109 +7,95 @@ namespace TableApp.Pages
     public partial class RecordsPagination : ComponentBase
     {
 
-        [Inject] 
-        private NavigationManager NavigationManager { get; set; } = null!;
+        [Parameter] 
+        public Pagination PaginationParameters { get; set; } = null!;
+
+        [Parameter]
+        public EventCallback<Pagination> OnParamsChangeCallback { get; set; }
 
         [Parameter]
         public int TotalPages { get; set; }
 
-        [Parameter]
-        public int CurrentPage { get; set; }
-
-        [Parameter]
-        public int PageSize { get; set; }
-
         #region Variables
 
         private int _pagerSize;
+
         private int _startPage;
         private int _endPage;
 
         #endregion
 
-
         protected override void OnInitialized()
         {
             _pagerSize = 5;
 
-            _startPage = (CurrentPage - _pagerSize / 2) < 1 ? 1 : (CurrentPage - _pagerSize / 2);
+            _startPage = (PaginationParameters.CurrentPage - _pagerSize / 2) < 1 ? 1 : (PaginationParameters.CurrentPage - _pagerSize / 2);
             _endPage = SetEndPage();
         }
 
         protected override void OnParametersSet()
         {
-            this.StateHasChanged();
+            StateHasChanged();
         }
 
-        public void SetPager(string direction)
+        private void SetPager(string direction)
         {
-            if (direction == "forward" && _endPage < TotalPages)
+            switch (direction)
             {
-                _startPage = _endPage++;
-                _endPage = SetEndPage();
-            }
-            else if (direction == "backward" && _startPage > 1)
-            {
-                _endPage = _startPage--;
-                _startPage = SetStartPage();
+                case "forward" when _endPage < TotalPages:
+                    _startPage = _endPage++;
+                    _endPage = SetEndPage();
+                    break;
+                case "backward" when _startPage > 1:
+                    _endPage = _startPage--;
+                    _startPage = SetStartPage();
+                    break;
             }
         }
-
-        public void NavigateToLastPage()
+        private async Task NavigateToFirstPage()
         {
-            CurrentPage = TotalPages;
-            _endPage = TotalPages;
-            _startPage = SetStartPage();
-            UpdatePagesQuery();
-        }
-        public void NavigateToFirstPage()
-        {
-            CurrentPage = 1;
+            PaginationParameters.CurrentPage = 1;
             _startPage = 1;
             _endPage = SetEndPage();
-            UpdatePagesQuery();
+            await OnParamsChangeCallback.InvokeAsync(PaginationParameters);
         }
 
-        public void SetPage(int page)
+        private async Task NavigateToLastPage()
         {
-            CurrentPage = page;
+            PaginationParameters.CurrentPage = TotalPages;
+            _endPage = TotalPages;
+            _startPage = SetStartPage();
+            await OnParamsChangeCallback.InvokeAsync(PaginationParameters);
+        }
 
-            if (_endPage - CurrentPage <= 1 && _endPage != TotalPages)
+        private async Task SetPage(int page)
+        {
+            PaginationParameters.CurrentPage = page;
+
+            if (_endPage - PaginationParameters.CurrentPage <= 1 && _endPage != TotalPages)
             {
                 _startPage++;
                 _endPage = SetEndPage();
             }
 
-            if (CurrentPage - _startPage <= 1 && _startPage != 1)
+            if (PaginationParameters.CurrentPage - _startPage <= 1 && _startPage != 1)
             {
-                if (CurrentPage != TotalPages && _endPage - CurrentPage > 1) _endPage--;
+                if (PaginationParameters.CurrentPage != TotalPages && _endPage - PaginationParameters.CurrentPage > 1) _endPage--;
                 _startPage = SetStartPage();
             }
-
-            UpdatePagesQuery();
+            await OnParamsChangeCallback.InvokeAsync(PaginationParameters);
         }
 
         private int SetEndPage() => _startPage + _pagerSize - 1 < TotalPages ? _startPage + _pagerSize - 1 : TotalPages;
 
         private int SetStartPage() => _endPage - _pagerSize + 1 > 1 ? _endPage - _pagerSize + 1 : 1;
 
-        private void SetPageSize(ChangeEventArgs e)
+        private async Task SetPageSize(ChangeEventArgs e)
         {
-            string test = e.Value?.ToString() ?? "10";
-            PageSize = Parse(test);
-            UpdatePagesQuery();
-        }
+            string pageSize = e.Value?.ToString() ?? "10";
+            PaginationParameters.PageSize = Parse(pageSize);
 
-        public void UpdatePagesQuery()
-        {
-            Dictionary<string, object> query = new Dictionary<string, object>
-            {
-                ["page"] = CurrentPage,
-                ["pageSize"] = PageSize
-            };
-            var address = NavigationManager.GetUriWithQueryParameters(query!);
-            NavigationManager.NavigateTo(address);
+            await OnParamsChangeCallback.InvokeAsync(PaginationParameters);
         }
-
     }
 }

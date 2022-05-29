@@ -9,6 +9,9 @@ namespace TableApp.Pages
         [Inject]
         private RecordService Service { get; set; } = null!;
 
+        [Inject]
+        private NavigationManager NavigationManager { get; set; } = null!;
+
         private List<Record>? _records;
 
         private int _totalPages;
@@ -28,6 +31,13 @@ namespace TableApp.Pages
         #region Sorting
         private string? _activeSortColumn = "Id";
         private string? _sortDir = "ASC";
+        #endregion
+
+        #region Filters
+
+        private int _currentPriceHubFilter;
+        private DateFilter? _currentDateFilter;
+
         #endregion
 
         readonly TableColumn[]? _columns = {
@@ -72,8 +82,8 @@ namespace TableApp.Pages
         {
             PageSize = PageSize > 0 ? PageSize : 10;
             CurrentPage = CurrentPage > 0 ? CurrentPage : 1;
+
             await FetchRecords();
-            await CountPagesAsync();
         }
 
 
@@ -84,9 +94,12 @@ namespace TableApp.Pages
 
         private async Task FetchRecords()
         {
-            Service.GetAllRecords(_activeSortColumn!, _sortDir!);
+            Service.FilterQueryByPriceHub(_currentPriceHubFilter);
+            Service.SortQuery(_activeSortColumn!, _sortDir!);
             Service.PaginateQuery(CurrentPage, PageSize);
+            await CountPagesAsync();
             _records = await Service.GetRecords();
+            Service.ClearFilter();
             this.StateHasChanged();
         }
 
@@ -96,14 +109,36 @@ namespace TableApp.Pages
             _totalPages = (int)Math.Ceiling(totalRecords / (decimal)PageSize);
         }
 
-        private void SetSortedColumn(string columnId)
+        private async Task SortColumns(Sorting sortingParams)
         {
-            _activeSortColumn = columnId;
+            _activeSortColumn = sortingParams.ColumnId;
+            _sortDir = sortingParams.Direction;
+            await FetchRecords();
         }
 
-        private void SetSortDirection(string direction)
+        private async Task PaginateTable(Pagination paginationParams)
         {
-            _sortDir = direction;
+            CurrentPage = paginationParams.CurrentPage;
+            PageSize = paginationParams.PageSize;
+            UpdateQuery();
+            await FetchRecords();
+        }
+
+        private async Task FilterByPriceHub(int priceHubId)
+        {
+            _currentPriceHubFilter = priceHubId;
+            await FetchRecords();
+        }
+
+        private void UpdateQuery()
+        {
+            Dictionary<string, object> query = new Dictionary<string, object>
+            {
+                ["page"] = CurrentPage,
+                ["pageSize"] = PageSize
+            };
+            var address = NavigationManager.GetUriWithQueryParameters(query!);
+            NavigationManager.NavigateTo(address);
         }
     }
 }

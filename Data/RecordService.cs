@@ -6,10 +6,30 @@ namespace TableApp.Data
     public class RecordService
     {
         private readonly IConfiguration _configuration;
-        private string? _query;
+
+        private readonly string? _baseQuery;
+        private string? _sort;
+        private string? _filters = string.Empty;
+        private string? _pagination;
+
+
         public RecordService(IConfiguration configuration)
         {
             _configuration = configuration;
+
+            _baseQuery = "SELECT " +
+                     "ice_electric2021final.Id, " +
+                     "price_hubs.Name AS PriceHub, " +
+                     "TradeDate, " +
+                     "DeliveryStartDate, " +
+                     "DeliveryEndDate, " +
+                     "HighPrice, " +
+                     "LowPrice, " +
+                     "WtdAvgPrice, " +
+                     "Change, " +
+                     "DailyVolume " +
+                     "from ice_electric2021final " +
+                     "INNER JOIN price_hubs ON ice_electric2021final.PriceHubId = price_hubs.Id ";
         }
 
         public async Task<List<Record>> GetRecords()
@@ -19,13 +39,16 @@ namespace TableApp.Data
 
             await using SqlConnection connection = new SqlConnection(conStr);
 
-            await using SqlCommand command = new SqlCommand(_query);
+            await using SqlCommand command = new SqlCommand(_baseQuery
+                                                            + _filters
+                                                            + _sort
+                                                            + _pagination);
 
             command.Connection = connection;
 
             connection.Open();
 
-            await using (SqlDataReader reader = command.ExecuteReader())
+            await using (SqlDataReader reader = await command.ExecuteReaderAsync())
             {
                 while (await reader.ReadAsync())
                 {
@@ -45,52 +68,59 @@ namespace TableApp.Data
                 }
             }
 
-            _query = string.Empty;
-
             connection.Close();
 
             return records;
         }
 
-        public void GetAllRecords(string orderBy, string sort)
+        public void SortQuery(string orderBy, string sort)
         {
-            _query = "SELECT " +
-                     "ice_electric2021final.Id, " +
-                     "price_hubs.Name AS PriceHub, " +
-                     "TradeDate, " +
-                     "DeliveryStartDate, " +
-                     "DeliveryEndDate, " +
-                     "HighPrice, " +
-                     "LowPrice, " +
-                     "WtdAvgPrice, " +
-                     "Change, " +
-                     "DailyVolume " +
-                     "from ice_electric2021final " +
-                     "INNER JOIN price_hubs ON ice_electric2021final.PriceHubId = price_hubs.Id " +
-                     $"ORDER BY {orderBy} {sort} ";
+            _sort = $"ORDER BY {orderBy} {sort} ";
         }
 
         public void PaginateQuery(int pageNumber, int itemsOnPage)
         {
-            _query += $"OFFSET {(pageNumber-1) * itemsOnPage} ROWS FETCH NEXT {itemsOnPage} ROWS ONLY";
+            _pagination = $"OFFSET {(pageNumber - 1) * itemsOnPage} ROWS FETCH NEXT {itemsOnPage} ROWS ONLY";
         }
 
-        public Task<int> Count()
+        public void FilterQueryByPriceHub(int priceHubId)
+        {
+            if (priceHubId <= 0) return;
+
+            _filters += _filters == string.Empty ? "WHERE " : "AND ";
+            _filters += $"PriceHubId = {priceHubId} ";
+        }
+        public void FilterQueryByDate(string dateType, DateTime? from = null, DateTime? to = null)
+        {
+            from ??= DateTime.MinValue;
+            to ??= DateTime.MaxValue;
+
+            _filters += _filters == string.Empty ? "WHERE " : "AND ";
+
+            _filters += $"{dateType} >= '{from.Value:yyyyMMdd}' ";
+            _filters += $"AND {dateType} <= '{to.Value:yyyyMMdd}' ";
+        }
+
+        public void ClearFilter () => _filters = string.Empty;
+
+        public async Task<int> Count()
         {
             string conStr = _configuration.GetConnectionString("DefaultConnection");
-            int count;
-            using (SqlConnection connection = new SqlConnection(conStr))
-            {
-                using (SqlCommand command = new SqlCommand("SELECT COUNT(*) FROM ice_electric2021final"))
-                {
-                    command.Connection = connection;
-                    connection.Open();
-                    count = Convert.ToInt32(command.ExecuteScalar());
-                    connection.Close();
-                }
-            }
 
-            return Task.FromResult(count);
+            await using SqlConnection connection = new SqlConnection(conStr);
+
+            await using SqlCommand command = new SqlCommand("SELECT COUNT(*) FROM ice_electric2021final "
+                                                            + _filters);
+
+            command.Connection = connection;
+
+            connection.Open();
+
+            int count = Convert.ToInt32(command.ExecuteScalar());
+
+            connection.Close();
+
+            return count;
         }
     }
 }

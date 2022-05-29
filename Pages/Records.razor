@@ -1,8 +1,16 @@
-﻿@using TableApp.Data
+﻿@page "/records";
 @using TableApp.Models
+<h3>Ice Electric final data of 2021th year</h3>
 
-@page "/records";
-<h3>Records</h3>
+<RecordsFilters OnPriceHubSetCallback="FilterByPriceHub"></RecordsFilters>
 
-<RecordsTable ColumnsSet="_columns" Records="_records" OnSortColumnId="@SetSortedColumn" OnSortDirection="@SetSortDirection" OnSortCallback="FetchRecords"></RecordsTable>
-<RecordsPagination CurrentPage="CurrentPage" PageSize="PageSize" TotalPages="_totalPages"></RecordsPagination>
+<RecordsTable 
+    CurrentPriceHubId="_currentPriceHubFilter"
+    ColumnsSet="_columns" 
+    Records="_records" 
+    OnSortCallback="SortColumns"></RecordsTable>
+
+<RecordsPagination PaginationParameters="new Pagination { CurrentPage = CurrentPage, PageSize = PageSize}"
+                   TotalPages="_totalPages"
+                   OnParamsChangeCallback="PaginateTable">
+</RecordsPagination>
