@@ -25,24 +25,30 @@ namespace TableApp.Pages
 
         #endregion
 
-        protected override void OnInitialized()
+        protected override async Task OnInitializedAsync()
         {
             _pagerSize = 5;
 
-            SetPagerOnInit();
+            await SetPagerOnInitAsync();
         }
 
-        protected override void OnParametersSet()
+        protected override async Task OnParametersSetAsync()
         {
-            SetPagerOnInit();
+            await SetPagerOnInitAsync();
             StateHasChanged();
         }
 
-        private void SetPagerOnInit()
+        private async Task SetPagerOnInitAsync()
         {
+            if (PaginationParameters.CurrentPage > TotalPages && TotalPages > 0)
+            {
+                PaginationParameters.CurrentPage = TotalPages;
+                await OnParamsChangeCallback.InvokeAsync(PaginationParameters);
+            }
             _startPage = (PaginationParameters.CurrentPage - _pagerSize / 2) < 1 ? 1 : (PaginationParameters.CurrentPage - _pagerSize / 2);
             _endPage = SetEndPage();
         }
+
 
         private void SetPager(string direction)
         {

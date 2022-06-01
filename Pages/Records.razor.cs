@@ -114,7 +114,7 @@ namespace TableApp.Pages
             await CountPagesAsync();
             _records = await Service.GetRecords();
             Service.ClearFilter();
-            this.StateHasChanged();
+            StateHasChanged();
         }
 
         private async Task CountPagesAsync()
@@ -159,16 +159,12 @@ namespace TableApp.Pages
             Dictionary<string, object> query = new Dictionary<string, object>
             {
                 ["page"] = CurrentPage,
-                ["page_size"] = PageSize
+                ["page_size"] = PageSize,
+                ["price_hub_id"] = PriceHubId,
+                ["date_type"] = DateType,
+                ["from"] = From,
+                ["to"] = To
             };
-
-            if (PriceHubId > 0) query.Add("price_hub_id", PriceHubId);
-
-            if (DateType != null) query.Add("date_type", DateType);
-
-            if (From != null) query.Add("from", From);
-
-            if (To != null) query.Add("to", To);
 
             var address = NavigationManager.GetUriWithQueryParameters(query!);
             NavigationManager.NavigateTo(address);

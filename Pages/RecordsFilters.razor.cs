@@ -44,9 +44,15 @@ namespace TableApp.Pages
             await OnPriceHubSetCallback.InvokeAsync(Parse(id));
         }
 
-        private void ToggleDateType(string type)
+        private async Task ToggleDateTypeAsync(string type)
         {
             DateType = DateType == type ? null : type;
+            if (DateType == null)
+            {
+                From = null;
+                To = null;
+                await SendDateRangeCallbackAsync();
+            }
         }
 
         private async Task SetFromDateAsync(ChangeEventArgs e)
@@ -69,7 +75,6 @@ namespace TableApp.Pages
 
         private async Task SendDateRangeCallbackAsync()
         {
-            if (DateType == null) return;
             await OnDateRangeSetCallback.InvokeAsync(new DateFilter
             {
                 DateType = DateType!,

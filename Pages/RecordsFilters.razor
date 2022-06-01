@@ -28,7 +28,7 @@
             <input type="checkbox"
                    class="btn-check"
                    id="trade-date"
-                   @onchange="@(() => ToggleDateType("TradeDate"))"
+                   @onchange="@(() => ToggleDateTypeAsync("TradeDate"))"
                    autocomplete="off"
                    checked="@(DateType == "TradeDate")">
             <label class="btn btn-primary" for="trade-date">Trade date</label>
@@ -36,7 +36,7 @@
             <input type="checkbox"
                    class="btn-check"
                    id="delivery-start"
-                   @onchange="@(() => ToggleDateType("DeliveryStartDate"))"
+                   @onchange="@(() => ToggleDateTypeAsync("DeliveryStartDate"))"
                    autocomplete="off"
                    checked="@(DateType == "DeliveryStartDate")">
             <label class="btn btn-primary" for="delivery-start">Delivery start</label>
@@ -44,20 +44,21 @@
             <input type="checkbox"
                    class="btn-check"
                    id="delivery-end"
-                   @onchange="@(() => ToggleDateType("DeliveryEndDate"))"
+                   @onchange="@(() => ToggleDateTypeAsync("DeliveryEndDate"))"
                    autocomplete="off"
                    checked="@(DateType == "DeliveryEndDate")">
             <label class="btn btn-primary" for="delivery-end">Delivery end</label>
         </div>
+        
         <div class="date-input @(DateType != null ? "expanded" : "")">
             <div>
                 <label for="from">From</label>
-                <input id="from" class="form-control" @onchange="SetFromDateAsync" type="date" />
+                <input id="from" class="form-control"  value="@(From != null ? From!.Value.ToString("yyyy-MM-dd") : "")" value-format="dd.MM.yyyy" @onchange="SetFromDateAsync" type="date"/>
             </div>
             <i class="bi bi-arrow-right"></i>
             <div>
                 <label for="to">To</label>
-                <input id="to" @onchange="SetToDateAsync" class="form-control" type="date" />
+                <input id="to" value="@(To != null ? To!.Value.ToString("yyyy-MM-dd") : "")" @onchange="SetToDateAsync"  class="form-control" type="date"/>
             </div>
         </div>
         

@@ -1,24 +1,26 @@
-﻿@page "/records";
+﻿@page "/";
 @using TableApp.Models
 
 <RecordsFilters
     OnPriceHubSetCallback="FilterByPriceHub"
     OnDateRangeSetCallback="FilterByDate"
-    CurrentPriceHubId="PriceHubId"
-    
+    CurrentPriceHubId="@PriceHubId"
+    DateType="@DateType"
+    From="@From"
+    To="@To"
 >
 </RecordsFilters>
 
 <RecordsTable
-    CurrentPriceHubId="PriceHubId"
-    ColumnsSet="_columns"
-    Records="_records"
+    CurrentPriceHubId="@PriceHubId"
+    ColumnsSet="@_columns"
+    Records="@_records"
     OnSortCallback="SortColumns"
     >
 </RecordsTable>
 
 <RecordsPagination PaginationParameters="new Pagination { CurrentPage = CurrentPage, PageSize = PageSize}"
-                   TotalPages="_totalPages"
+                   TotalPages="@_totalPages"
                    OnParamsChangeCallback="PaginateTable"
                    >
 </RecordsPagination>
