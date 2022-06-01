@@ -1,5 +1,18 @@
 ﻿@using TableApp.Models
 
+<div class="button-container">
+    <label class="form-check-label">Expand all dates</label>
+    <div class="form-check form-switch">
+        <input 
+            class="form-check-input" 
+            @onchange="ToggleDatesExpanding" 
+            type="checkbox" 
+            role="switch" 
+            checked="@(_expandedClass == "expanded")"
+            >
+    </div>
+</div>
+
 <div class="table-container">
     <table class="table">
         <thead class="table-light">

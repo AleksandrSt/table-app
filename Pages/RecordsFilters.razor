@@ -1,19 +1,67 @@
 ﻿@using TableApp.Models
 
 
-    <div class="filters-container">
-        <div class="selection-container">
-            <span class="selection-title">Price Hub</span>
-            <select class="form-select" value="@_priceHubId" @onchange="ChoosePriceHub">
-                <option value="0">All</option>
-                @if (_priceHubs != null)
+<div class="filters-container">
+    <div class="selection-container">
+        <span class="selection-title">
+            Price Hub
+            <i class="bi bi-funnel-fill"></i>
+        </span>
+        <select class="form-select" value="@CurrentPriceHubId" @onchange="ChoosePriceHubAsync">
+            <option value="0">All</option>
+            @if (_priceHubs != null)
+            {
+                @foreach (var ph in _priceHubs!)
                 {
-                    @foreach (var ph in _priceHubs!)
-                    {
-                        <option value="@ph.Id">@ph.Name</option>
-                    }
+                    <option value="@ph.Id">@ph.Name</option>
                 }
-            </select>
-        </div>
+            }
+        </select>
     </div>
+
+    <div class="dates-container">
+        <span class="dates-title">
+            Dates
+            <i class="bi bi-funnel-fill"></i>
+        </span>
+        <div class="date-types">
+            <input type="checkbox"
+                   class="btn-check"
+                   id="trade-date"
+                   @onchange="@(() => ToggleDateType("TradeDate"))"
+                   autocomplete="off"
+                   checked="@(DateType == "TradeDate")">
+            <label class="btn btn-primary" for="trade-date">Trade date</label>
+
+            <input type="checkbox"
+                   class="btn-check"
+                   id="delivery-start"
+                   @onchange="@(() => ToggleDateType("DeliveryStartDate"))"
+                   autocomplete="off"
+                   checked="@(DateType == "DeliveryStartDate")">
+            <label class="btn btn-primary" for="delivery-start">Delivery start</label>
+
+            <input type="checkbox"
+                   class="btn-check"
+                   id="delivery-end"
+                   @onchange="@(() => ToggleDateType("DeliveryEndDate"))"
+                   autocomplete="off"
+                   checked="@(DateType == "DeliveryEndDate")">
+            <label class="btn btn-primary" for="delivery-end">Delivery end</label>
+        </div>
+        <div class="date-input @(DateType != null ? "expanded" : "")">
+            <div>
+                <label for="from">From</label>
+                <input id="from" class="form-control" @onchange="SetFromDateAsync" type="date" />
+            </div>
+            <i class="bi bi-arrow-right"></i>
+            <div>
+                <label for="to">To</label>
+                <input id="to" @onchange="SetToDateAsync" class="form-control" type="date" />
+            </div>
+        </div>
+        
+    </div>
+
+</div>
 

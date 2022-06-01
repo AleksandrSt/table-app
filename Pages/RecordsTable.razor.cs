@@ -38,7 +38,7 @@ namespace TableApp.Pages
         protected override void OnParametersSet()
         {
             _expandedRecordId = 0;
-            if (CurrentPriceHubId > 0) ColumnsSet = ColumnsSet.Skip(1).ToArray();
+            if (CurrentPriceHubId > 0) ColumnsSet = ColumnsSet!.Skip(1).ToArray();
 
             StateHasChanged();
         }
@@ -86,5 +86,7 @@ namespace TableApp.Pages
         {
             return _sortingParams.ColumnId != columnId ? "bi-caret-up" : _isSortedAscending ? "bi-caret-up-fill" : "bi-caret-up-fill rotated";
         }
+
+        private void ToggleDatesExpanding () => @_expandedClass = _expandedClass == "expanded" ? string.Empty : "expanded";
     }
 }

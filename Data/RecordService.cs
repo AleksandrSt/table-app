@@ -90,9 +90,12 @@ namespace TableApp.Data
             _filters += _filters == string.Empty ? "WHERE " : "AND ";
             _filters += $"PriceHubId = {priceHubId} ";
         }
-        public void FilterQueryByDate(string dateType, DateTime? from = null, DateTime? to = null)
+        public void FilterQueryByDate(string? dateType, DateTime? from = null, DateTime? to = null)
         {
-            from ??= DateTime.MinValue;
+            if (dateType == null) return;
+
+            // minimum date value in SQL
+            from ??= new DateTime(1753,1,1);
             to ??= DateTime.MaxValue;
 
             _filters += _filters == string.Empty ? "WHERE " : "AND ";

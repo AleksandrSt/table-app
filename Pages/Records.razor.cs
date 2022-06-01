@@ -23,7 +23,7 @@ namespace TableApp.Pages
         public int CurrentPage { get; set; }
 
         [Parameter]
-        [SupplyParameterFromQuery(Name = "pageSize")]
+        [SupplyParameterFromQuery(Name = "page_size")]
         public int PageSize { get; set; }
 
         #endregion
@@ -35,8 +35,21 @@ namespace TableApp.Pages
 
         #region Filters
 
-        private int _currentPriceHubFilter;
-        private DateFilter? _currentDateFilter;
+        [Parameter]
+        [SupplyParameterFromQuery(Name = "price_hub_id")]
+        public int PriceHubId { get; set; }
+
+        [Parameter]
+        [SupplyParameterFromQuery(Name = "date_type")]
+        public string? DateType { get; set; }
+
+        [Parameter]
+        [SupplyParameterFromQuery(Name = "from")]
+        public DateTime? From { get; set; }
+
+        [Parameter]
+        [SupplyParameterFromQuery(Name = "to")]
+        public DateTime? To { get; set; }
 
         #endregion
 
@@ -83,18 +96,19 @@ namespace TableApp.Pages
             PageSize = PageSize > 0 ? PageSize : 10;
             CurrentPage = CurrentPage > 0 ? CurrentPage : 1;
 
-            await FetchRecords();
+            await FetchRecordsAsync();
         }
 
 
         protected override async Task OnParametersSetAsync()
         {
-            await FetchRecords();
+            await FetchRecordsAsync();
         }
 
-        private async Task FetchRecords()
+        private async Task FetchRecordsAsync()
         {
-            Service.FilterQueryByPriceHub(_currentPriceHubFilter);
+            Service.FilterQueryByPriceHub(PriceHubId);
+            Service.FilterQueryByDate(DateType!, From, To);
             Service.SortQuery(_activeSortColumn!, _sortDir!);
             Service.PaginateQuery(CurrentPage, PageSize);
             await CountPagesAsync();
@@ -113,7 +127,7 @@ namespace TableApp.Pages
         {
             _activeSortColumn = sortingParams.ColumnId;
             _sortDir = sortingParams.Direction;
-            await FetchRecords();
+            await FetchRecordsAsync();
         }
 
         private async Task PaginateTable(Pagination paginationParams)
@@ -121,13 +135,23 @@ namespace TableApp.Pages
             CurrentPage = paginationParams.CurrentPage;
             PageSize = paginationParams.PageSize;
             UpdateQuery();
-            await FetchRecords();
+            await FetchRecordsAsync();
         }
 
         private async Task FilterByPriceHub(int priceHubId)
         {
-            _currentPriceHubFilter = priceHubId;
-            await FetchRecords();
+            PriceHubId = priceHubId;
+            UpdateQuery();
+            await FetchRecordsAsync();
+        }
+
+        private async Task FilterByDate(DateFilter dateFilterParams)
+        {
+            DateType = dateFilterParams.DateType;
+            From = dateFilterParams.From;
+            To = dateFilterParams.To;
+            UpdateQuery();
+            await FetchRecordsAsync();
         }
 
         private void UpdateQuery()
@@ -135,8 +159,17 @@ namespace TableApp.Pages
             Dictionary<string, object> query = new Dictionary<string, object>
             {
                 ["page"] = CurrentPage,
-                ["pageSize"] = PageSize
+                ["page_size"] = PageSize
             };
+
+            if (PriceHubId > 0) query.Add("price_hub_id", PriceHubId);
+
+            if (DateType != null) query.Add("date_type", DateType);
+
+            if (From != null) query.Add("from", From);
+
+            if (To != null) query.Add("to", To);
+
             var address = NavigationManager.GetUriWithQueryParameters(query!);
             NavigationManager.NavigateTo(address);
         }

@@ -1,3 +1,91 @@
 ﻿.filters-container {
-    margin-bottom: 50px;
+    margin-bottom: 30px;
 }
+
+.selection-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+    .selection-container .selection-title {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .selection-container .form-select {
+        max-width: 300px;
+    }
+
+.dates-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+    .dates-container .dates-title {
+        margin-bottom: 10px;
+        text-align: center;
+        font-size: 18px;
+    }
+
+    .dates-container .date-types {
+        display: flex;
+        flex-direction: row;
+        margin-bottom: 20px;
+    }
+
+        .dates-container .date-types .btn-check:active + .btn-primary {
+            color: #202124;
+            background-color: #6d7578;
+            border-color: #ae4bbf;
+        }
+
+        .dates-container .date-types .btn-check:focus + .btn-primary {
+            color: #dee0e3;
+            box-shadow: none;
+            background-color: #414648;
+            border-color: #616870;
+        }
+
+        .dates-container .date-types .btn-check:checked + .btn-primary {
+            color: #202124;
+            background-color: #ea80fc;
+            border-color: #ae4bbf;
+        }
+
+        .dates-container .date-types .btn-check:focus-within:checked + .btn-primary {
+            color: #202124;
+            background-color: #ea80fc;
+            border-color: #ae4bbf;
+        }
+
+
+    .dates-container .date-input {
+        display: flex;
+        flex-direction: row;
+        text-align: center;
+        -webkit-transition: height 400ms ease;
+        transition: height 400ms ease;
+        overflow: hidden;
+        height: 0;
+    }
+
+        .dates-container .date-input.expanded {
+            height: 67px;
+        }
+
+        .dates-container .date-input input {
+            margin-top: 5px;
+        }
+
+        .dates-container .date-input i {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            margin-bottom: 5px;
+            margin-right: 5px;
+            margin-left: 5px;
+            font-size: 30px;
+        }

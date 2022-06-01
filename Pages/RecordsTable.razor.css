@@ -1,9 +1,10 @@
 ﻿.table-container {
     overflow-y: scroll;
     min-height: 450px;
-    max-height: 900px;
-    margin-bottom: 20px;
-    box-shadow: 0 1px 0 0 #dee2e6;
+    max-height: 600px;
+    margin: 10px 100px 20px 100px;
+    box-shadow: 0 1px 0 0 #616870;
+    background-color: #323338;
 }
 
     .table-container th {
@@ -11,7 +12,9 @@
         position: sticky;
         top: 0;
         z-index: 1;
-        box-shadow: inset 0 -1px 0 0 red;
+        box-shadow: inset 0 -1px 0 0 #616870;
+        background-color: #3c3e44;
+        color: #dee0e3;
     }
 
     .table-container table {
@@ -27,6 +30,8 @@
 
     .table-container td {
         vertical-align: middle;
+        color: #cbced2;
+        border-color: #585d65;
     }
 
 
@@ -65,3 +70,34 @@
         -webkit-transform: rotate(-180deg);
         transform: rotate(-180deg);
     }
+
+.button-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-right: 100px;
+}
+
+    .button-container .form-check-label {
+        margin-right: 10px
+    }
+
+    .button-container .form-check-input {
+        background-color: #3c4042;
+        border-color: #616870;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23cbced2'/%3e%3c/svg%3e");
+    }
+
+    .button-container .form-check-input:focus {
+        border-color: #616870;
+        background-color: #3c4042;
+        outline: 0;
+        box-shadow: none;
+    }
+
+        .button-container .form-check-input:checked {
+            border-color: #e276f5;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffb2ff'/%3e%3c/svg%3e");
+            background-color: #b64fc8;
+            box-shadow: rgba(226, 117, 245, 0.25) 0px 0px 0px 0.25rem;
+        }

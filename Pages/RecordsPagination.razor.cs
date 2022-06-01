@@ -29,13 +29,19 @@ namespace TableApp.Pages
         {
             _pagerSize = 5;
 
-            _startPage = (PaginationParameters.CurrentPage - _pagerSize / 2) < 1 ? 1 : (PaginationParameters.CurrentPage - _pagerSize / 2);
-            _endPage = SetEndPage();
+            SetPagerOnInit();
         }
 
         protected override void OnParametersSet()
         {
+            SetPagerOnInit();
             StateHasChanged();
+        }
+
+        private void SetPagerOnInit()
+        {
+            _startPage = (PaginationParameters.CurrentPage - _pagerSize / 2) < 1 ? 1 : (PaginationParameters.CurrentPage - _pagerSize / 2);
+            _endPage = SetEndPage();
         }
 
         private void SetPager(string direction)

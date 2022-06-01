@@ -12,7 +12,7 @@
     .pagination a {
         cursor: pointer;
         user-select: none;
-        color: black;
+        color: #dee0e3;
         float: left;
         padding: 8px 16px;
         text-decoration: none;
@@ -21,19 +21,19 @@
 
         .pagination a.active {
             pointer-events: none;
-            background-color: #4CAF50;
-            color: white;
+            background-color: #ea80fc;
+            color: #202124;
         }
 
         .pagination a.disabled {
             pointer-events: none;
-            background-color: #e8e8e8;
-            color: #a8a8a8;
+            background-color: #2e3133;
+            color: #757575;
             cursor: default;
         }
 
         .pagination a:hover:not(.active):not(.disabled) {
-            background-color: #ddd;
+            background-color: #3c4042;
         }
 
 .selection-container {
@@ -47,15 +47,9 @@
     }
 
     .selection-container .form-select {
-       /* border-radius: 0;*/
-        margin-top: 5px;
+        margin: 5px 0 20px 0;
         padding: 0.375rem 2.0rem 0.375rem 0.75rem;
         max-width: 60px;
         font-size: 12px;
+        text-align: left;
     }
-
-        .selection-container .form-select:focus {
-            border-color: red;
-            outline: 0px;
-            box-shadow: rgba(13 110 253, 0.25) 0px 0px 0px 0.25rem;
-        }
