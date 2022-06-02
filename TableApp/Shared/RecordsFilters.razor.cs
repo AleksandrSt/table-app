@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Components;
-using TableApp.Data;
+using TableApp.DataInterfaces;
 using TableApp.Models;
 using static System.Int32;
 
-namespace TableApp.Pages
+namespace TableApp.Shared
 {
     public partial class RecordsFilters : ComponentBase
     {
         [Inject]
-        private PriceHubsService Service { get; set; } = null!;
+        private IPriceHubsService Service { get; set; } = null!;
 
         [Parameter]
         public EventCallback<int> OnPriceHubSetCallback { get; set; }
@@ -16,8 +16,7 @@ namespace TableApp.Pages
         [Parameter]
         public EventCallback<DateFilter> OnDateRangeSetCallback { get; set; }
 
-        private List<PriceHub>? _priceHubs;
-
+        private IEnumerable<PriceHub>? _priceHubs;
 
 
         [Parameter]
@@ -32,16 +31,18 @@ namespace TableApp.Pages
         [Parameter]
         public DateTime? To { get; set; }
 
-        protected override async Task OnInitializedAsync()
+        protected override async Task OnParametersSetAsync()
         {
-            _priceHubs = await Service.GetPriceHubs();
+            _priceHubs = await Service.GetPriceHubsAsync();
         }
 
         private async Task ChoosePriceHubAsync(ChangeEventArgs e)
         {
             string id = e.Value?.ToString() ?? "0";
 
-            await OnPriceHubSetCallback.InvokeAsync(Parse(id));
+            CurrentPriceHubId = Parse(id);
+
+            await OnPriceHubSetCallback.InvokeAsync(CurrentPriceHubId);
         }
 
         private async Task ToggleDateTypeAsync(string type)

@@ -2,12 +2,12 @@
 using TableApp.Models;
 using static System.Int32;
 
-namespace TableApp.Pages
+namespace TableApp.Shared
 {
     public partial class RecordsPagination : ComponentBase
     {
 
-        [Parameter] 
+        [Parameter]
         public Pagination PaginationParameters { get; set; } = null!;
 
         [Parameter]
@@ -64,7 +64,7 @@ namespace TableApp.Pages
                     break;
             }
         }
-        private async Task NavigateToFirstPage()
+        private async Task NavigateToFirstPageAsync()
         {
             PaginationParameters.CurrentPage = 1;
             _startPage = 1;
@@ -72,7 +72,7 @@ namespace TableApp.Pages
             await OnParamsChangeCallback.InvokeAsync(PaginationParameters);
         }
 
-        private async Task NavigateToLastPage()
+        private async Task NavigateToLastPageAsync()
         {
             PaginationParameters.CurrentPage = TotalPages;
             _endPage = TotalPages;
@@ -80,7 +80,7 @@ namespace TableApp.Pages
             await OnParamsChangeCallback.InvokeAsync(PaginationParameters);
         }
 
-        private async Task SetPage(int page)
+        private async Task SetPageAsync(int page)
         {
             PaginationParameters.CurrentPage = page;
 
@@ -102,7 +102,7 @@ namespace TableApp.Pages
 
         private int SetStartPage() => _endPage - _pagerSize + 1 > 1 ? _endPage - _pagerSize + 1 : 1;
 
-        private async Task SetPageSize(ChangeEventArgs e)
+        private async Task SetPageSizeAsync(ChangeEventArgs e)
         {
             string pageSize = e.Value?.ToString() ?? "10";
             PaginationParameters.PageSize = Parse(pageSize);

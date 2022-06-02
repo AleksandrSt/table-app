@@ -1,14 +1,13 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using TableApp.Data;
+using TableApp.DataInterfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<RecordService>();
-builder.Services.AddSingleton<PriceHubsService>();
+builder.Services.AddSingleton<IRecordService, RecordService>();
+builder.Services.AddSingleton<IPriceHubsService, PriceHubsService>();
 
 var app = builder.Build();
 

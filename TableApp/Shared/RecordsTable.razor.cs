@@ -1,18 +1,21 @@
 ﻿using Microsoft.AspNetCore.Components;
 using TableApp.Models;
 
-namespace TableApp.Pages
+namespace TableApp.Shared
 {
     public partial class RecordsTable : ComponentBase
     {
         [Parameter]
-        public List<Record>? Records { get; set; }
+        public IEnumerable<Record>? Records { get; set; }
 
         [Parameter]
         public TableColumn[]? ColumnsSet { get; set; }
 
         [Parameter]
         public int CurrentPriceHubId { get; set; }
+
+        [Parameter]
+        public string? FilterErrorMessage { get; set; }
 
         #region Callbacks
 
@@ -87,6 +90,6 @@ namespace TableApp.Pages
             return _sortingParams.ColumnId != columnId ? "bi-caret-up" : _isSortedAscending ? "bi-caret-up-fill" : "bi-caret-up-fill rotated";
         }
 
-        private void ToggleDatesExpanding () => @_expandedClass = _expandedClass == "expanded" ? string.Empty : "expanded";
+        private void ToggleDatesExpanding() => @_expandedClass = _expandedClass == "expanded" ? string.Empty : "expanded";
     }
 }

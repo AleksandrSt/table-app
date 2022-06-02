@@ -1,0 +1,34 @@
+﻿@page "/";
+@using TableApp.Models
+
+@if (_records == null)
+{
+    <div class="lds-dual-ring"></div>
+}
+else
+{
+    <RecordsFilters
+        OnPriceHubSetCallback="FilterByPriceHubAsync"
+        OnDateRangeSetCallback="FilterByDateAsync"
+        CurrentPriceHubId="@PriceHubId"
+        DateType="@DateType"
+        From="@From"
+        To="@To"
+    >
+    </RecordsFilters>
+
+    <RecordsTable
+        CurrentPriceHubId="@PriceHubId"
+        ColumnsSet="@_columns"
+        Records="@_records"
+        OnSortCallback="SortColumnsAsync"
+        FilterErrorMessage="@_filterErrorMessage"
+    >
+    </RecordsTable>
+
+    <RecordsPagination PaginationParameters="new Pagination { CurrentPage = CurrentPage, PageSize = PageSize}"
+                       TotalPages="@_totalPages"
+                       OnParamsChangeCallback="PaginateTableAsync"
+    >
+    </RecordsPagination>
+}

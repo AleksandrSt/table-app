@@ -8,9 +8,9 @@
             <i class="bi bi-funnel-fill"></i>
         </span>
         <select class="form-select" value="@CurrentPriceHubId" @onchange="ChoosePriceHubAsync">
-            <option value="0">All</option>
             @if (_priceHubs != null)
             {
+                <option value="0">All</option>
                 @foreach (var ph in _priceHubs!)
                 {
                     <option value="@ph.Id">@ph.Name</option>

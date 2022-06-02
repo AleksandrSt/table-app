@@ -34,7 +34,11 @@
         <tbody>
             @if (Records == null)
             {
-                <tr class="spinner"></tr>
+                <tr scope="row"><td class="no-records" colspan="@ColumnsSet.Length">No records found</td></tr>
+            }
+            else if (!Records.Any())
+            {
+                <tr scope="row"><td class="no-records" colspan="@ColumnsSet.Length">@(FilterErrorMessage ?? "No filter matched records")</td></tr>
             }
             else
             {

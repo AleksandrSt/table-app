@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
-using TableApp.Data;
+using TableApp.DataInterfaces;
 using TableApp.Models;
 
 namespace TableApp.Pages
@@ -7,12 +7,12 @@ namespace TableApp.Pages
     public partial class Records : ComponentBase
     {
         [Inject]
-        private RecordService Service { get; set; } = null!;
+        private IRecordService Service { get; set; } = null!;
 
         [Inject]
         private NavigationManager NavigationManager { get; set; } = null!;
 
-        private List<Record>? _records;
+        private IEnumerable<Record>? _records;
 
         private int _totalPages;
 
@@ -50,6 +50,8 @@ namespace TableApp.Pages
         [Parameter]
         [SupplyParameterFromQuery(Name = "to")]
         public DateTime? To { get; set; }
+
+        private string? _filterErrorMessage;
 
         #endregion
 
@@ -112,25 +114,25 @@ namespace TableApp.Pages
             Service.SortQuery(_activeSortColumn!, _sortDir!);
             Service.PaginateQuery(CurrentPage, PageSize);
             await CountPagesAsync();
-            _records = await Service.GetRecords();
+            _records = await Service.GetRecordsAsync();
             Service.ClearFilter();
             StateHasChanged();
         }
 
         private async Task CountPagesAsync()
         {
-            int totalRecords = await Service.Count();
+            int totalRecords = await Service.CountAsync();
             _totalPages = (int)Math.Ceiling(totalRecords / (decimal)PageSize);
         }
 
-        private async Task SortColumns(Sorting sortingParams)
+        private async Task SortColumnsAsync(Sorting sortingParams)
         {
             _activeSortColumn = sortingParams.ColumnId;
             _sortDir = sortingParams.Direction;
             await FetchRecordsAsync();
         }
 
-        private async Task PaginateTable(Pagination paginationParams)
+        private async Task PaginateTableAsync(Pagination paginationParams)
         {
             CurrentPage = paginationParams.CurrentPage;
             PageSize = paginationParams.PageSize;
@@ -138,25 +140,30 @@ namespace TableApp.Pages
             await FetchRecordsAsync();
         }
 
-        private async Task FilterByPriceHub(int priceHubId)
+        private async Task FilterByPriceHubAsync(int priceHubId)
         {
             PriceHubId = priceHubId;
             UpdateQuery();
             await FetchRecordsAsync();
         }
 
-        private async Task FilterByDate(DateFilter dateFilterParams)
+        private async Task FilterByDateAsync(DateFilter dateFilterParams)
         {
             DateType = dateFilterParams.DateType;
             From = dateFilterParams.From;
             To = dateFilterParams.To;
+
+            _filterErrorMessage = From != null && To != null && To < From
+                ? "End date can not be earlier that start date"
+                : null;
+
             UpdateQuery();
             await FetchRecordsAsync();
         }
 
         private void UpdateQuery()
         {
-            Dictionary<string, object> query = new Dictionary<string, object>
+            Dictionary<string, object?> query = new Dictionary<string, object?>
             {
                 ["page"] = CurrentPage,
                 ["page_size"] = PageSize,

@@ -1,17 +1,20 @@
 ﻿using System.Data.SqlClient;
+using TableApp.DataInterfaces;
 using TableApp.Models;
 
 namespace TableApp.Data
 {
-    public class PriceHubsService
+    public class PriceHubsService : IPriceHubsService
+
     {
         private readonly IConfiguration _configuration;
+
         public PriceHubsService(IConfiguration configuration)
         {
             _configuration = configuration;
         }
 
-        public async Task<List<PriceHub>> GetPriceHubs()
+        public async Task<IEnumerable<PriceHub>> GetPriceHubsAsync()
         {
             string conStr = _configuration.GetConnectionString("DefaultConnection");
             List<PriceHub> priceHubs = new List<PriceHub>();

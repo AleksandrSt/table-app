@@ -1,9 +1,10 @@
 ﻿using System.Data.SqlClient;
+using TableApp.DataInterfaces;
 using TableApp.Models;
 
 namespace TableApp.Data
 {
-    public class RecordService
+    public class RecordService : IRecordService
     {
         private readonly IConfiguration _configuration;
 
@@ -32,7 +33,7 @@ namespace TableApp.Data
                      "INNER JOIN price_hubs ON ice_electric2021final.PriceHubId = price_hubs.Id ";
         }
 
-        public async Task<List<Record>> GetRecords()
+        public async Task<IEnumerable<Record>> GetRecordsAsync()
         {
             string conStr = _configuration.GetConnectionString("DefaultConnection");
             List<Record> records = new List<Record>();
@@ -94,8 +95,9 @@ namespace TableApp.Data
         {
             if (dateType == null) return;
 
+            DateTime minDate = new DateTime(1753, 1, 1);
             // minimum date value in SQL
-            from ??= new DateTime(1753,1,1);
+            from = from == null || from < minDate ? minDate : from;
             to ??= DateTime.MaxValue;
 
             _filters += _filters == string.Empty ? "WHERE " : "AND ";
@@ -104,9 +106,9 @@ namespace TableApp.Data
             _filters += $"AND {dateType} <= '{to.Value:yyyyMMdd}' ";
         }
 
-        public void ClearFilter () => _filters = string.Empty;
+        public void ClearFilter() => _filters = string.Empty;
 
-        public async Task<int> Count()
+        public async Task<int> CountAsync()
         {
             string conStr = _configuration.GetConnectionString("DefaultConnection");
 
